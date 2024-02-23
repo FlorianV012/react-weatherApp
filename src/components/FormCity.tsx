@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { City } from "../interfaces"
+import { City } from "../interfaces";
 import WeatherDisplay from "./WeatherDisplay";
 
 const GEOCODING_API_KEY = import.meta.env.VITE_GEOCODING_API_KEY;
@@ -9,6 +9,7 @@ export default function FormCity() {
   const [cities, setCities] = useState<City[]>([]);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [fetchData, setFetchData] = useState<boolean>(false);
+  const [numberOfDays, setNumberOfDays] = useState<number>(7);
 
   useEffect(() => {
     if (fetchData) {
@@ -55,6 +56,11 @@ export default function FormCity() {
     setSelectedCity(null);
   };
 
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedDays = parseInt(event.target.value);
+    setNumberOfDays(selectedDays);
+  };
+
   const handleCitySelection = (selected: City) => {
     setSelectedCity(selected);
   };
@@ -62,15 +68,24 @@ export default function FormCity() {
   return (
     <>
       <form onSubmit={handleFormSubmit}>
-        <label>
-          Enter City Name:
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-          />
-        </label>
-        <button type="submit">Find Cities</button>
+        <input
+          type="text"
+          value={city}
+          placeholder="enter a location"
+          onChange={(e) => setCity(e.target.value)}
+        />
+        <select name="day-nb" id="day-nb" onChange={handleSelectChange}>
+          <option value="1">1 day</option>
+          <option value="2">2 days</option>
+          <option value="3">3 days</option>
+          <option value="4">4 days</option>
+          <option value="5">5 days</option>
+          <option value="6">6 days</option>
+          <option value="7" selected>
+            7 days
+          </option>
+        </select>
+        <button type="submit">Find location</button>
       </form>
       {cities.length > 0 && !selectedCity && (
         <div>
@@ -86,8 +101,11 @@ export default function FormCity() {
       )}
       {selectedCity && (
         <div>
-          <h2>{selectedCity.name}:</h2>
-          <WeatherDisplay selectedCity={selectedCity} />
+          <h2>{selectedCity.name}</h2>
+          <WeatherDisplay
+            selectedCity={selectedCity}
+            numberOfDays={numberOfDays}
+          />
         </div>
       )}
     </>

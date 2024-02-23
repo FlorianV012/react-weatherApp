@@ -5,9 +5,49 @@ const WEATHERBIT_API_KEY = import.meta.env.VITE_WEATHERBIT_API_KEY;
 
 interface WeatherDisplayProps {
   selectedCity: City;
+  numberOfDays: number;
 }
 
-export default function WeatherDisplay({ selectedCity }: WeatherDisplayProps) {
+function formatDate(dateString: string): string {
+  const daysOfWeek = [
+    "dimanche",
+    "lundi",
+    "mardi",
+    "mercredi",
+    "jeudi",
+    "vendredi",
+    "samedi",
+  ];
+  const months = [
+    "janvier",
+    "février",
+    "mars",
+    "avril",
+    "mai",
+    "juin",
+    "juillet",
+    "août",
+    "septembre",
+    "octobre",
+    "novembre",
+    "décembre",
+  ];
+
+  const date = new Date(dateString);
+  const dayOfWeekIndex = date.getDay();
+  const dayOfMonth = date.getDate();
+  const monthIndex = date.getMonth();
+
+  const dayOfWeek = daysOfWeek[dayOfWeekIndex];
+  const month = months[monthIndex];
+
+  return `${dayOfWeek} ${dayOfMonth} ${month}`;
+}
+
+export default function WeatherDisplay({
+  selectedCity,
+  numberOfDays,
+}: WeatherDisplayProps) {
   const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
 
   useEffect(() => {
@@ -20,12 +60,9 @@ export default function WeatherDisplay({ selectedCity }: WeatherDisplayProps) {
             throw new Error(
               `Error : ${response.status}, ${response.statusText}`
             );
-
           return response.json();
         })
         .then((data: WeatherResponse) => {
-          console.log("data:", data.data);
-
           const filteredData = data.data.map((item: any) => ({
             max_temp: item.max_temp,
             min_temp: item.min_temp,
@@ -38,7 +75,6 @@ export default function WeatherDisplay({ selectedCity }: WeatherDisplayProps) {
             },
           }));
           setWeatherData(filteredData);
-          console.log("filteredData:", filteredData);
         })
         .catch((error) => {
           console.error("Error fetching weather:", error);
@@ -47,14 +83,22 @@ export default function WeatherDisplay({ selectedCity }: WeatherDisplayProps) {
   }, [selectedCity]);
 
   return (
-    <ul>
-      {weatherData.map((weather: WeatherData, index: number) => (
-        <li key={index}>
-          Date: {weather.valid_date}, Max Temp: {weather.max_temp}°C, Min Temp:{" "}
-          {weather.min_temp}°C, Pop: {weather.pop}, Description:{" "}
-          {weather.weather.description}
-        </li>
-      ))}
-    </ul>
+    <div className="weather-container">
+      {weatherData
+        .slice(0, numberOfDays)
+        .map((weather: WeatherData, index: number) => (
+          <div className="weather-card" key={index}>
+            <div className="day">{formatDate(weather.valid_date)}</div>
+            <div className="temp">
+              {weather.max_temp}°C / {weather.min_temp}°C
+            </div>
+            <img
+              src={`/icons/${weather.weather.icon}.svg`}
+              className="info-icon"
+              alt={weather.weather.description}
+            />
+          </div>
+        ))}
+    </div>
   );
 }

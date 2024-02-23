@@ -1,16 +1,8 @@
 import { useState, useEffect } from "react";
+import { City } from "../interfaces"
+import WeatherDisplay from "./WeatherDisplay";
 
 const GEOCODING_API_KEY = import.meta.env.VITE_GEOCODING_API_KEY;
-
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
-
-interface City {
-  name: string;
-  coordinates: Coordinates;
-}
 
 export default function FormCity() {
   const [city, setCity] = useState<string>("");
@@ -27,7 +19,9 @@ export default function FormCity() {
         )
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Failed to fetch cities");
+              throw new Error(
+                `"Failed to fetch location : ${response.status}, ${response.statusText}`
+              );
             }
             return response.json();
           })
@@ -42,11 +36,11 @@ export default function FormCity() {
               }));
               setCities(citiesData);
             } else {
-              console.error("No cities found for the given query");
+              console.error("No location found for the given query");
             }
           })
           .catch((error) => {
-            console.error("Error fetching cities:", error);
+            console.error("Error fetching locations:", error);
           });
       };
 
@@ -93,8 +87,7 @@ export default function FormCity() {
       {selectedCity && (
         <div>
           <h2>{selectedCity.name}:</h2>
-          <p>Latitude: {selectedCity.coordinates.latitude}</p>
-          <p>Longitude: {selectedCity.coordinates.longitude}</p>
+          <WeatherDisplay selectedCity={selectedCity} />
         </div>
       )}
     </>

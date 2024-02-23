@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { City } from "../interfaces";
+import loader from "../assets/loader.svg";
 import WeatherDisplay from "./WeatherDisplay";
 
 const GEOCODING_API_KEY = import.meta.env.VITE_GEOCODING_API_KEY;
@@ -8,7 +9,7 @@ export default function FormCity() {
   const [city, setCity] = useState<string>("");
   const [cities, setCities] = useState<City[]>([]);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
-  const [fetchData, setFetchData] = useState<boolean>(false);
+  const [fetchData, setFetchData] = useState<boolean>(true);
   const [numberOfDays, setNumberOfDays] = useState<number>(7);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function FormCity() {
                 },
               }));
               setCities(citiesData);
+              setFetchData(false);
             } else {
               console.error("No location found for the given query");
             }
@@ -46,7 +48,6 @@ export default function FormCity() {
       };
 
       fetchCities();
-      setFetchData(false);
     }
   }, [fetchData, city]);
 
@@ -87,6 +88,9 @@ export default function FormCity() {
         </select>
         <button type="submit">Find location</button>
       </form>
+      <div className={`loader-container ${fetchData && "active"}`}>
+        <img src={loader} alt="loading icon" />
+      </div>
       {cities.length > 0 && !selectedCity && (
         <div>
           <h2>Choose a city:</h2>

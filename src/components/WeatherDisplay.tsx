@@ -1,47 +1,13 @@
 import { useState, useEffect } from "react";
 import { City, WeatherData, WeatherResponse } from "../interfaces";
+import loader from "../assets/loader.svg";
+import formatDate from "../utils/formatDate";
 
 const WEATHERBIT_API_KEY = import.meta.env.VITE_WEATHERBIT_API_KEY;
 
 interface WeatherDisplayProps {
   selectedCity: City;
   numberOfDays: number;
-}
-
-function formatDate(dateString: string): string {
-  const daysOfWeek = [
-    "dimanche",
-    "lundi",
-    "mardi",
-    "mercredi",
-    "jeudi",
-    "vendredi",
-    "samedi",
-  ];
-  const months = [
-    "janvier",
-    "février",
-    "mars",
-    "avril",
-    "mai",
-    "juin",
-    "juillet",
-    "août",
-    "septembre",
-    "octobre",
-    "novembre",
-    "décembre",
-  ];
-
-  const date = new Date(dateString);
-  const dayOfWeekIndex = date.getDay();
-  const dayOfMonth = date.getDate();
-  const monthIndex = date.getMonth();
-
-  const dayOfWeek = daysOfWeek[dayOfWeekIndex];
-  const month = months[monthIndex];
-
-  return `${dayOfWeek} ${dayOfMonth} ${month}`;
 }
 
 export default function WeatherDisplay({
@@ -83,22 +49,32 @@ export default function WeatherDisplay({
   }, [selectedCity]);
 
   return (
-    <div className="weather-container">
-      {weatherData
-        .slice(0, numberOfDays)
-        .map((weather: WeatherData, index: number) => (
-          <div className="weather-card" key={index}>
-            <div className="day">{formatDate(weather.valid_date)}</div>
-            <div className="temp">
-              {weather.max_temp}°C / {weather.min_temp}°C
+    <>
+      <div
+        className={`loader-container ${
+          weatherData.length < 1 && selectedCity && "active"
+        }`}
+      >
+        <img src={loader} alt="loading icon" />
+      </div>
+      <div className="weather-container">
+        {weatherData
+          .slice(0, numberOfDays)
+          .map((weather: WeatherData, index: number) => (
+            <div className="weather-card" key={index}>
+              <div className="day">{formatDate(weather.valid_date)}</div>
+              <div className="temp">
+                {weather.max_temp}°C / {weather.min_temp}°C
+              </div>
+              <img
+                src={`/icons/${weather.weather.icon}.svg`}
+                className="info-icon"
+                alt={weather.weather.description}
+                title={weather.weather.description}
+              />
             </div>
-            <img
-              src={`/icons/${weather.weather.icon}.svg`}
-              className="info-icon"
-              alt={weather.weather.description}
-            />
-          </div>
-        ))}
-    </div>
+          ))}
+      </div>
+    </>
   );
 }

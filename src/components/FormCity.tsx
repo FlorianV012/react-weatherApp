@@ -9,7 +9,7 @@ export default function FormCity() {
   const [city, setCity] = useState<string>("");
   const [cities, setCities] = useState<City[]>([]);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
-  const [fetchData, setFetchData] = useState<boolean>(true);
+  const [fetchData, setFetchData] = useState<boolean>(false);
   const [numberOfDays, setNumberOfDays] = useState<number>(7);
 
   useEffect(() => {
